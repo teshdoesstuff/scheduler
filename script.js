@@ -205,13 +205,38 @@ function renderHistory() {
 
     const meta = document.createElement('div');
     meta.className = 'meta';
-    meta.textContent = `Saved on ${new Date(schedule.createdAt).toLocaleString()} � ${schedule.dates.length} day(s)`;
+    meta.textContent = `Saved on ${new Date(schedule.createdAt).toLocaleString()} • ${schedule.dates.length} day(s)`;
 
+    // Show date range summary
+    const summary = document.createElement('div');
+    summary.className = 'date-summary';
+    const firstDate = schedule.dates[0];
+    const lastDate = schedule.dates[schedule.dates.length - 1];
+    summary.textContent = `${firstDate} to ${lastDate}`;
+    
+    // Full date list (initially hidden)
+    const dateListContainer = document.createElement('div');
+    dateListContainer.className = 'date-list-container';
+    dateListContainer.style.display = 'none';
+    
     const dateList = document.createElement('ul');
-    schedule.dates.slice(0, 10).forEach((date) => {
+    schedule.dates.forEach((date) => {
       const entry = document.createElement('li');
       entry.textContent = date;
       dateList.appendChild(entry);
+    });
+    dateListContainer.appendChild(dateList);
+    
+    // Expand button
+    const expandButton = document.createElement('button');
+    expandButton.type = 'button';
+    expandButton.textContent = 'Show all dates';
+    expandButton.className = 'secondary expand-button';
+    expandButton.style.marginTop = '10px';
+    expandButton.addEventListener('click', () => {
+      const isHidden = dateListContainer.style.display === 'none';
+      dateListContainer.style.display = isHidden ? 'block' : 'none';
+      expandButton.textContent = isHidden ? 'Hide dates' : 'Show all dates';
     });
 
     const actions = document.createElement('div');
@@ -236,7 +261,9 @@ function renderHistory() {
 
     item.appendChild(title);
     item.appendChild(meta);
-    item.appendChild(dateList);
+    item.appendChild(summary);
+    item.appendChild(expandButton);
+    item.appendChild(dateListContainer);
     item.appendChild(actions);
     historyList.appendChild(item);
   });
