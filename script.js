@@ -17,6 +17,7 @@ let currentDate = new Date();
 let currentYear = currentDate.getFullYear();
 let currentMonth = currentDate.getMonth();
 let selectedDates = new Set();
+let editingScheduleId = null;
 
 function switchScreen(screenId) {
   [homeScreen, scheduleScreen, historyScreen].forEach((section) => {
@@ -112,26 +113,74 @@ function saveSchedule() {
   }
 
   const savedSchedules = JSON.parse(localStorage.getItem('scheduler-history') || '[]');
-  const schedule = {
-    id: Date.now(),
-    createdAt: new Date().toISOString(),
-    note: scheduleNote.value.trim(),
-    dates: Array.from(selectedDates).sort(),
-  };
+  
+  if (editingScheduleId !== null) {
+    // Update existing schedule
+    const scheduleIndex = savedSchedules.findIndex((s) => s.id === editingScheduleId);
+    if (scheduleIndex !== -1) {
+      savedSchedules[scheduleIndex].note = scheduleNote.value.trim();
+      savedSchedules[scheduleIndex].dates = Array.from(selectedDates).sort();
+      alert('Itinerary updated successfully.');
+    }
+    editingScheduleId = null;
+  } else {
+    // Create new schedule
+    const schedule = {
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+      note: scheduleNote.value.trim(),
+      dates: Array.from(selectedDates).sort(),
+    };
+    savedSchedules.unshift(schedule);
+    alert('Itinerary saved successfully.');
+  }
 
-  savedSchedules.unshift(schedule);
   localStorage.setItem('scheduler-history', JSON.stringify(savedSchedules));
 
   selectedDates.clear();
   scheduleNote.value = '';
   buildCalendar();
-  alert('Itinerary saved successfully.');
+  updateSaveButtonText();
   showHistory();
 }
 
 function clearSelection() {
   selectedDates.clear();
   buildCalendar();
+}
+
+function updateSaveButtonText() {
+  const saveButton = document.getElementById('save-schedule');
+  const cancelButton = document.getElementById('cancel-edit');
+  if (editingScheduleId !== null) {
+    saveButton.textContent = 'Update itinerary';
+    cancelButton.style.display = 'block';
+  } else {
+    saveButton.textContent = 'Save itinerary';
+    cancelButton.style.display = 'none';
+  }
+}
+
+function editSchedule(scheduleId) {
+  const schedules = getSavedSchedules();
+  const schedule = schedules.find((s) => s.id === scheduleId);
+  
+  if (schedule) {
+    editingScheduleId = scheduleId;
+    selectedDates.clear();
+    schedule.dates.forEach((dateStr) => {
+      selectedDates.add(dateStr);
+    });
+    scheduleNote.value = schedule.note;
+    
+    // Reset calendar to current view
+    currentDate = new Date();
+    currentYear = currentDate.getFullYear();
+    currentMonth = currentDate.getMonth();
+    buildCalendar();
+    updateSaveButtonText();
+    switchScreen('schedule-screen');
+  }
 }
 
 function getSavedSchedules() {
@@ -156,7 +205,7 @@ function renderHistory() {
 
     const meta = document.createElement('div');
     meta.className = 'meta';
-    meta.textContent = `Saved on ${new Date(schedule.createdAt).toLocaleString()} · ${schedule.dates.length} day(s)`;
+    meta.textContent = `Saved on ${new Date(schedule.createdAt).toLocaleString()} ï¿½ ${schedule.dates.length} day(s)`;
 
     const dateList = document.createElement('ul');
     schedule.dates.slice(0, 10).forEach((date) => {
@@ -167,11 +216,22 @@ function renderHistory() {
 
     const actions = document.createElement('div');
     actions.style.marginTop = '14px';
+    actions.style.display = 'flex';
+    actions.style.gap = '10px';
+    
+    const editButton = document.createElement('button');
+    editButton.type = 'button';
+    editButton.textContent = 'Edit';
+    editButton.className = 'primary-button';
+    editButton.addEventListener('click', () => editSchedule(schedule.id));
+    
     const deleteButton = document.createElement('button');
     deleteButton.type = 'button';
     deleteButton.textContent = 'Delete';
     deleteButton.className = 'delete-button';
     deleteButton.addEventListener('click', () => deleteSchedule(schedule.id));
+    
+    actions.appendChild(editButton);
     actions.appendChild(deleteButton);
 
     item.appendChild(title);
@@ -203,6 +263,8 @@ function attachEvents() {
   });
 
   document.getElementById('back-home-1').addEventListener('click', () => {
+    editingScheduleId = null;
+    updateSaveButtonText();
     switchScreen('home-screen');
   });
 
@@ -218,6 +280,14 @@ function attachEvents() {
   document.getElementById('next-month').addEventListener('click', () => changeMonth(1));
   document.getElementById('clear-selection').addEventListener('click', clearSelection);
   document.getElementById('save-schedule').addEventListener('click', saveSchedule);
+  document.getElementById('cancel-edit').addEventListener('click', () => {
+    editingScheduleId = null;
+    selectedDates.clear();
+    scheduleNote.value = '';
+    updateSaveButtonText();
+    buildCalendar();
+    showHistory();
+  });
   document.getElementById('view-history').addEventListener('click', showHistory);
 }
 
