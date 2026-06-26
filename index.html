@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scheduler App</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="app-shell">
+        <header class="app-header">
+            <div>
+                <h1>Scheduler</h1>
+                <p>Plan your year with a simple itinerary builder.</p>
+            </div>
+        </header>
+
+        <main>
+            <section id="home-screen" class="screen active">
+                <div class="card home-card">
+                    <h2>Welcome</h2>
+                    <p>Choose an option to start scheduling or review your saved itineraries.</p>
+                    <div class="button-row">
+                        <button id="go-schedule">Schedule</button>
+                        <button id="go-history" class="secondary">Previous schedules</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="schedule-screen" class="screen">
+                <div class="card">
+                    <div class="screen-header">
+                        <div>
+                            <h2>Schedule</h2>
+                            <p>Select days on the calendar to block them for your itinerary.</p>
+                        </div>
+                        <button id="back-home-1" class="link-button">Back</button>
+                    </div>
+
+                    <div class="calendar-nav">
+                        <button id="prev-month" class="nav-button">?</button>
+                        <div class="month-label" id="month-label"></div>
+                        <button id="next-month" class="nav-button">?</button>
+                    </div>
+
+                    <div class="calendar" id="calendar"></div>
+
+                    <div class="info-row">
+                        <div class="selected-info">
+                            <strong id="selected-count">0</strong> day(s) selected
+                        </div>
+                        <button id="clear-selection" class="secondary">Clear selection</button>
+                    </div>
+
+                    <label class="field">
+                        <span>Itinerary note (optional)</span>
+                        <textarea id="schedule-note" placeholder="Add a title or note..." rows="3"></textarea>
+                    </label>
+
+                    <div class="button-row action-row">
+                        <button id="save-schedule">Save itinerary</button>
+                        <button id="view-history" class="secondary">View previous schedules</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="history-screen" class="screen">
+                <div class="card">
+                    <div class="screen-header">
+                        <div>
+                            <h2>Previous schedules</h2>
+                            <p>Review or remove your saved itineraries.</p>
+                        </div>
+                        <button id="back-home-2" class="link-button">Back</button>
+                    </div>
+
+                    <div id="history-list" class="history-list"></div>
+
+                    <div class="button-row history-actions">
+                        <button id="back-home-3" class="secondary">Home</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
